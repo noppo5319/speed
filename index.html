@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>速度表示</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@900&display=swap');
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: #0a0f2c;
+      color: orange;
+      font-family: 'Orbitron', monospace;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .speed {
+      font-size: 15vw;
+      text-shadow: 0 0 10px orange, 0 0 20px #ff9900;
+    }
+
+    .status {
+      margin-top: 20px;
+      color: #aaa;
+      font-size: 1em;
+    }
+  </style>
+</head>
+<body>
+  <div class="speed" id="speed">--- km/h</div>
+  <div class="status" id="status">位置情報を取得中...</div>
+
+  <script>
+    const speedEl = document.getElementById('speed');
+    const statusEl = document.getElementById('status');
+
+    function updateSpeed(position) {
+      const speedMps = position.coords.speed; // m/s
+
+      if (speedMps != null && speedMps >= 0) {
+        const speedKmh = (speedMps * 3.6).toFixed(1);
+        speedEl.textContent = `${speedKmh.padStart(5, ' ')} km/h`;
+        statusEl.textContent = "リアルタイム測定中";
+      } else {
+        speedEl.textContent = "--- km/h";
+        statusEl.textContent = "速度を測定中...";
+      }
+    }
+
+    function showError(error) {
+      speedEl.textContent = "--- km/h";
+      statusEl.textContent = `エラー: ${error.message}`;
+    }
+
+    if (navigator.geolocation) {
+      navigator.geolocation.watchPosition(updateSpeed, showError, {
+        enableHighAccuracy: true,
+        maximumAge: 1000,
+        timeout: 5000
+      });
+    } else {
+      statusEl.textContent = "この端末では位置情報がサポートされていません";
+    }
+  </script>
+</body>
+</html>
